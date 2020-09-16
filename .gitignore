@@ -128,5 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-auth.json
+config.json
 /images
+.DS_Store
