@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+import sys
 import time
 import threading
 from datetime import datetime, timedelta
@@ -43,48 +44,52 @@ def setStatus(window, status):
     window['-status-'].update(status)
     print(status)
 
-sg.theme('DarkGreen2')
 
-subredditValues = util.getJson('src/config.json')['subreddits']
-dateValues = list(map(util.daysFromNow, range(7)))
-hourValues = list(range(1, 13))
-minuteValues = list(map(util.pad, range(60)))
-periodValues = ['AM', 'PM']
+try:
+    sg.theme('DarkGreen2')
 
-layout = [
-    [sg.Text('Subreddit:', size=(10, 1)),
-        sg.InputCombo(subredditValues, size=(50, 1), key='-subredditName-')],
-    [sg.Text('Image:', size=(10, 1)),
-        sg.Input(disabled=True, size=(43, 1)),
-        sg.FileBrowse(key='-imagePath-')],
-    [sg.Text('Title:', size=(10, 1)),
-        sg.InputText(key='-title-', size=(52, 1))],
-    [sg.Text('Comment:', size=(10, 1)),
-        sg.Multiline(size=(50, 3), key='-comment-')],
-    [sg.Text('Date:', size=(10, 1)),
-        sg.Spin(dateValues, initial_value=str(util.daysFromNow(1)), key='-date-', size=(28, 1))],
-    [sg.Text('Time:', size=(10, 1)),
-        sg.InputCombo(hourValues, default_value=8, key='-hour-', size=(4, 1)),
-        sg.Text(':'),
-        sg.InputCombo(minuteValues, default_value='00', key='-minute-', size=(4, 1)),
-        sg.Text(' '),
-        sg.InputCombo(periodValues, default_value='AM', key='-period-', size=(4, 1))],
-    [sg.Text('Status:', size=(10, 1)),
-        sg.InputText(default_text='', key='-status-', disabled=True, size=(52, 1))],
-    [sg.Button('Schedule'), sg.Quit()]
-]
+    subredditValues = util.getJson('src/config.json')['subreddits']
+    dateValues = list(map(util.daysFromNow, range(7)))
+    hourValues = list(range(1, 13))
+    minuteValues = list(map(util.pad, range(60)))
+    periodValues = ['AM', 'PM']
 
-window = sg.Window('Post scheduler', layout, default_element_size=(60, 1))
+    layout = [
+        [sg.Text('Subreddit:', size=(10, 1)),
+            sg.InputCombo(subredditValues, size=(50, 1), key='-subredditName-')],
+        [sg.Text('Image:', size=(10, 1)),
+            sg.Input(disabled=True, size=(43, 1)),
+            sg.FileBrowse(key='-imagePath-')],
+        [sg.Text('Title:', size=(10, 1)),
+            sg.InputText(key='-title-', size=(52, 1))],
+        [sg.Text('Comment:', size=(10, 1)),
+            sg.Multiline(size=(50, 3), key='-comment-')],
+        [sg.Text('Date:', size=(10, 1)),
+            sg.Spin(dateValues, initial_value=str(util.daysFromNow(1)), key='-date-', size=(28, 1))],
+        [sg.Text('Time:', size=(10, 1)),
+            sg.InputCombo(hourValues, default_value=8, key='-hour-', size=(4, 1)),
+            sg.Text(':'),
+            sg.InputCombo(minuteValues, default_value='00', key='-minute-', size=(4, 1)),
+            sg.Text(' '),
+            sg.InputCombo(periodValues, default_value='AM', key='-period-', size=(4, 1))],
+        [sg.Text('Status:', size=(10, 1)),
+            sg.InputText(default_text='', key='-status-', disabled=True, size=(52, 1))],
+        [sg.Button('Schedule'), sg.Quit()]
+    ]
 
-while True:
-    event, values = window.read()
-    if event in (sg.WIN_CLOSED, 'Quit'):
-        break
-    if event == 'Schedule':
-        status = validate(values)
-        setStatus(window, status)
+    window = sg.Window('Post scheduler', layout, default_element_size=(60, 1))
 
-        if not status.startswith('ERROR'):
-            postImage(values)
+    while True:
+        event, values = window.read()
+        if event in (sg.WIN_CLOSED, 'Quit'):
+            break
+        if event == 'Schedule':
+            status = validate(values)
+            setStatus(window, status)
 
-window.close()
+            if not status.startswith('ERROR'):
+                postImage(values)
+
+    window.close()
+except:
+    util.logError(sys.exc_info())

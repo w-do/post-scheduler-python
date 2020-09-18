@@ -1,7 +1,7 @@
 import time
 import json
 from datetime import datetime, timedelta
-
+import os
 
 # get x days from now as ISO 8601 date string
 def daysFromNow(x):
@@ -24,6 +24,16 @@ def isValid(iso):
         return True
     except:
         return False
+
+def logError(error):
+    logPath = f'{str(datetime.now().date())}.txt'
+    writeMode = 'a' if os.path.exists(logPath) else 'w'
+    log = open(logPath, writeMode)
+    log.writelines([
+        f'{datetime.now()}\n',
+        f'TYPE {error[0]}\n',
+        f'VALUE {error[1]}\n\n'])
+    log.close()
 
 def pad(x):
     return '0' + str(x) if x < 10 else str(x)
